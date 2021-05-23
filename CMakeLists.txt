@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # add_subdirectory(test)
 
-add_library(algorithms algorithms.cpp algorithms.hpp)
+add_library(algorithms algorithms.cpp algorithms.hpp graph.cpp graph.hpp list.cpp list.hpp)
 
 # Make sure the compiler can find include files for our Hello library
 # when other libraries or executables link to Hello

@@ -2,7 +2,10 @@
 #include "../algorithms.hpp"
 
 int main() {
-    algorithms::test();
-    std::cout << "Hello, World!" << std::endl;
+//    algorithms::test();
+//    algorithms::graph::test();
+    algorithms::list::test();
+
+    // std::cout << "Hello, World!" << std::endl;
     return 0;
 }

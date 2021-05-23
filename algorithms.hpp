@@ -1,6 +1,9 @@
 #ifndef ALGORITHMS_HPP
 #define ALGORITHMS_HPP
 
+#include "graph.hpp"
+#include "list.hpp"
+
 namespace algorithms {
 
     class string;

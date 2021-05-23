@@ -251,11 +251,11 @@ int DamerauLevenshteinDistance(S: char[1..M], T: char[1..N]; deleteCost, insertC
     int damerau_levenshtein_distance(const std::string & s1, const std::string & s2, costs_t & costs, int alphabet = 256) {
         int m = s1.size(), n = s2.size();
 
-        if(m == n == 0) return 0;
+        if( (m == n) && (m == 0) ) return 0;
         if(m == 0) return n;
         if(n == 0) return m;
 
-        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+        vector<vector<int>> dp(m + 2, vector<int>(n + 2, 0));
 
         const int INF = (m + n) * std::max({costs.del, costs.insert, costs.replace, costs.transpose}); // big constant
 
@@ -353,7 +353,7 @@ int DamerauLevenshteinDistance(S: char[1..M], T: char[1..N]; deleteCost, insertC
     void test() {
 //        std::cout << R"(levenshtein_distance("fuck", "duck") = )"  << levenshtein_distance("fuck", "duck") << " expected 1" << std::endl;
         costs_t costs;
-        std::cout << R"(damerau_levenshtein_distance("fuck", "duck") = )"  << damerau_levenshtein_distance("BA", "AB", costs) << " expected 2" << std::endl;
+        std::cout << R"(damerau_levenshtein_distance("CA", "ABC") = )"  << damerau_levenshtein_distance("CA", "ABC", costs) << " expected 2" << std::endl;
         std::cout << "Test finished!" << std::endl;
     }
 
