@@ -29,6 +29,8 @@ namespace algorithms::graph {
         }
     };
 
+
+
     node_t * make_graph(const adjacency_list_t & list) {
 
         size_t list_size = list.size();
@@ -272,12 +274,71 @@ namespace algorithms::graph {
     }
 
 
+    edge_list_t find_bridges(const edge_list_t & edges) {
+
+        adjacency_list_t graph = convert(edges);
+
+        // number of nodes in the graph
+        int graph_size = graph.size();
+        // number of the current step of the graph traversal
+        int timer = 0;
+        // vertex with lowest visiting time reachable from the current vertex
+        vector<int> lowest_time(graph_size);
+        vector<int> vertex_walk_time(graph_size);
+        // visited vertices
+        vector<bool> visited(graph_size, false);
+        // found articulation points
+        edge_list_t bridges;
+        auto find_bridges_dfs = [&lowest_time, &vertex_walk_time, &visited, &timer, &graph, &bridges] (auto& self, int current, int parent = -1) -> void {
+            visited[current] = true;
+            vertex_walk_time[current] = lowest_time[current] = timer++;
+            // number of vertices connected ot the current vertex
+            auto neighbors = graph[current].size();
+            for (size_t i = 0; i < neighbors; ++i) {
+                // neighbor vertex connected to the current vertex by directed edge outgoing from the current vertex
+                int to_vertex = graph[current][i];
+                // exclude parent vertex from the processing because we process directed graph
+                if (to_vertex == parent) { continue; }
+                // if we met already visited vertex
+                if (visited[to_vertex]) {
+                    lowest_time[current] = min(lowest_time[current], vertex_walk_time[to_vertex]);
+                }
+                else {
+                    self(self, to_vertex, current);
+                    lowest_time[current] = min(lowest_time[current], lowest_time[to_vertex]);
+                    if(lowest_time[to_vertex] > vertex_walk_time[current]) {
+                        bridges.push_back({current, to_vertex});
+                    }
+                }
+            }
+        };
+
+        for (int i = 0; i < graph_size; ++i) {
+            if (!visited[i]) {
+                find_bridges_dfs(find_bridges_dfs, i);
+            }
+        }
+
+        return bridges;
+    }
 
     void test() {
 
         cout << "\ngraph test" << endl;
 
         const edge_list_t tree {{0, 1}, {0, 2}, {1, 2}};
+
+        const edge_list_t test{{0, 1},
+        {0, 2},
+        {1, 2},
+        {2, 3},
+        {3, 4},
+        {2, 5},
+        {5, 6},
+        {6, 7},
+        {7, 8},
+        {8, 5}};
+
         const edge_list_t edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}, {2, 5}, {5, 6}, {3, 4}};
 
         print_edges(tree);
@@ -299,5 +360,10 @@ namespace algorithms::graph {
         auto clone = clone_graph(graph);
 
         print_graph(clone, 3);
+
+        cout << "\nprint bridges:" << endl;
+
+        print_edges(find_bridges(test));
+
     }
 }
