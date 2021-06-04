@@ -30,7 +30,6 @@ namespace algorithms::graph {
     };
 
 
-
     node_t * make_graph(const adjacency_list_t & list) {
 
         size_t list_size = list.size();
