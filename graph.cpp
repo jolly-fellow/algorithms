@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <queue>
 #include <algorithm>
+#include <functional>
 
 namespace algorithms::graph {
     using namespace std;
@@ -15,6 +16,10 @@ namespace algorithms::graph {
     using edge_list_t = vector<pair<int, int>>;
     using adjacency_list_t = vector<vector<int>>;
     using adjacency_matrix_t = vector<vector<bool>>;
+
+    // forward declarations
+    adjacency_list_t convert(const edge_list_t & edges);
+
 
 // Definition for a node.
     struct node_t {
@@ -28,6 +33,46 @@ namespace algorithms::graph {
             neighbors = _neighbors;
         }
     };
+
+    using callback_t = void (int);
+    // do dfs and call the callback function to process each node
+    void recursive_dfs(adjacency_list_t &graph, callback_t & callback) {
+        // number of nodes in the graph
+        int graph_size = graph.size();
+        // visited vertices
+        vector<bool> visited(graph_size, false);
+
+        std::function<void(int)> dfs = [&dfs, &visited, &graph, &callback](int current) {
+            callback(current);
+            visited[current] = true;
+            for (auto nb: graph[current]) {
+                dfs(nb);
+            }
+        };
+
+        dfs(0);
+    }
+
+    // iterative_bfs
+    void iterative_bfs(adjacency_list_t &graph, callback_t & callback) {
+        // number of nodes in the graph
+        int graph_size = graph.size();
+        // visited vertices
+        vector<bool> visited(graph_size, false);
+
+        queue<int> q;
+        q.push(0);
+        while (!q.empty()) {
+            auto node = q.front(); q.pop();
+            if( ! visited[node]) {
+                callback(node);
+                visited[node] = true;
+                for (auto nb:  graph[node]) {
+                    q.push(nb);
+                }
+            }
+        }
+    }
 
 
     node_t * make_graph(const adjacency_list_t & list) {
