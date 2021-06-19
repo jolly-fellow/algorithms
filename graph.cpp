@@ -18,7 +18,7 @@ namespace algorithms::graph {
     using adjacency_matrix_t = vector<vector<bool>>;
 
     // forward declarations
-    adjacency_list_t convert(const edge_list_t & edges);
+    adjacency_list_t convert(const edge_list_t & edges, bool directed);
 
 
 // Definition for a node.
@@ -247,7 +247,9 @@ namespace algorithms::graph {
         return table[node];
     }
 
-    adjacency_list_t convert(const edge_list_t & edges) {
+    // If directed == true Converts pairs of nodes to directed graph where edges directed from the left node to the right one.
+    // If directed == false converts pairs of nodes to undirected graph where the nodes connected to both directions
+    adjacency_list_t convert(const edge_list_t & edges, bool directed = false) {
 
         auto max_vertex = std::max_element(edges.begin(), edges.end(), [](const edge_list_t::value_type & a, const edge_list_t::value_type & b) { return max(a.first, a.second) < max(b.first, b.second); });
 
@@ -257,7 +259,9 @@ namespace algorithms::graph {
 
         for(auto [u, v] : edges) {
             graph[u].push_back(v);
-            graph[v].push_back(u);
+            if( ! directed) {
+                graph[v].push_back(u);
+            }
         }
         return graph;
     }
@@ -366,9 +370,54 @@ namespace algorithms::graph {
         return bridges;
     }
 
+    vector<int> topological_sort(const edge_list_t & edges) {
+        // converting to directed graph where edges directed from the left node to the right one.
+        adjacency_list_t graph = convert(edges, true);
+        // number of nodes in the graph
+        int graph_size = graph.size();
+        vector<int> result;
+        result.reserve(graph_size);
+        // visited vertices
+        vector<bool> visited(graph_size, false);
+
+        std::function<void(int)> dfs = [&dfs, &visited, &graph, &result](int current) {
+            visited[current] = true;
+            for (auto nb: graph[current]) {
+                if(!visited[nb]) {
+                    dfs(nb);
+                }
+            }
+            result.push_back(current);
+        };
+
+        for (int i = 0; i < graph_size; ++i) {
+            if (!visited[i]) {
+                dfs(i);
+            }
+        }
+
+        std::reverse(result.begin(), result.end());
+        return result;
+    }
+
+
+    void print_vector(const vector<int> &v) {
+        for(auto i: v) {
+            cout << i << " ";
+        }
+        cout << endl;
+    }
+
     void test() {
 
         cout << "\ngraph test" << endl;
+        const edge_list_t top_sort_test {{5, 2}, {5, 0}, {4, 0}, {4, 1}, {2, 3}, {3, 1}};
+
+        auto result = topological_sort(top_sort_test);
+
+        cout << "test topological_sort()\n";
+
+        print_vector(result);
 
         const edge_list_t tree {{0, 1}, {0, 2}, {1, 2}};
 

@@ -3,6 +3,7 @@
 
 #include "graph.hpp"
 #include "list.hpp"
+#include "sort.hpp"
 
 namespace algorithms {
 
