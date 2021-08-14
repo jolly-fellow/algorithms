@@ -12,6 +12,45 @@
 namespace algorithms::sort {
     using namespace std;
 
+    template <typename T>
+    std::vector<T> merge_sorted_arrays(std::vector<T> v1, std::vector<T> v2) {
+        auto v1_size = v1.size();
+        auto v2_size = v2.size();
+        std::vector<T> res;
+        res.reserve(v1_size + v1_size);
+
+        int i = v1_size;
+        int j = v2_size;
+        while (i >= 0 || j >= 0) {
+
+            if (v1[i] < v2[j]) {
+                res.push_back(v2[j]);
+                --j;
+            }
+            else {
+                if (v1[i] == v2[j]) {
+                    res.push_back(v1[i]);
+                    --i;
+                }
+                res.push_back(v2[j]);
+                --j;
+            }
+
+            if (i == 0) {
+                while (j >= 0) {
+                    res.push_back(v2[j]);
+                    --j;
+                }
+            }
+            if (j == 0) {
+                while (i >= 0) {
+                    res.push_back(v1[i]);
+                    --i;
+                }
+            }
+        }
+    }
+
     template <typename BidirIt, typename Compare = std::less<>>
     void merge_sort(BidirIt first, BidirIt last, Compare cmp = Compare {})
     {
@@ -73,6 +112,10 @@ namespace algorithms::sort {
     }
 
     void test() {
+
+        std::vector<int> v1 {1,2,3,4,5};
+        std::vector<int> v2 {4,5,6,7,8,9};
+        auto t = merge_sorted_arrays(v1, v2);
 
         vector<vector<int>> matrix{{1,  -1,  0,  -2,  -3},
 
