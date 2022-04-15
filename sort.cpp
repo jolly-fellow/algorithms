@@ -49,6 +49,7 @@ namespace algorithms::sort {
                 }
             }
         }
+        return res;
     }
 
     template <typename BidirIt, typename Compare = std::less<>>

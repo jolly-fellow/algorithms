@@ -4,12 +4,13 @@
 #include "graph.hpp"
 #include "list.hpp"
 #include "sort.hpp"
+#include <string>
 
 namespace algorithms {
 
-    class string;
 
-    int damerau_levenshtein_distance(const string & s1, const string & s2);
+
+    int damerau_levenshtein_distance(const std::string & s1, const std::string & s2);
 
     void test();
 }

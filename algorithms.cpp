@@ -1,9 +1,12 @@
-#include "algorithms.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <numeric>
+#include <list>
+#include <unordered_map>
+#include <assert.h>
+#include "algorithms.hpp"
 
 namespace algorithms {
     using namespace std;
@@ -349,8 +352,88 @@ int DamerauLevenshteinDistance(S: char[1..M], T: char[1..N]; deleteCost, insertC
         return dp[m+1][n+1];
     }
 
+    template<typename KEY_T, typename VAL_T = KEY_T>
+    class LRU_cache_t {
+    using kv_pair = std::pair<VAL_T, typename std::list<KEY_T>::iterator>;
+    private:
+        std::list<KEY_T> keys;
+        unordered_map <KEY_T, kv_pair> map;
+        int cache_size;
+
+    public:
+        LRU_cache_t(int size) : cache_size(size) {
+            assert(cache_size > 0);
+        }
+
+        void add(const KEY_T & key, const VAL_T & value) {
+            auto pos = map.find(key); // find the key in the map
+            if (pos == map.end()) {   // if the key was not found adding the new key and value
+                keys.push_front(key); // add the key to the list
+                map.emplace(key, make_pair(value, keys.begin())); // add the pair key-value to the map
+//                map[key] = {value, keys.begin() };
+                if (map.size() > cache_size) {    // if the cache is full
+                    map.erase(keys.back());       // remove the last used key-value pair from the cache
+                    keys.pop_back();
+                }
+            }
+            else {  // if the key was found
+                // move the key from the back of the list to the front
+                keys.splice(keys.begin(), keys, pos->second.second);
+                map.emplace(key, make_pair(value, keys.begin())); // add the pair key-value to the map
+//                map[key] = {value, keys.begin() };
+            }
+        }
+
+        std::optional<VAL_T> get(const KEY_T & key) {
+            auto pos = map.find(key);
+            if (pos == map.end()) {
+                return {};
+            }
+            // move the key from the back of the list to the front
+            keys.splice(keys.begin(), keys, pos->second.second);
+            map.emplace(key, make_pair(pos->second.first, keys.begin() )); // add the pair key-value to the map
+//            map[key] = {pos->second.first, keys.begin() };
+            return pos->second.first;
+        }
+
+        void print() const {
+            cout << "\n";
+            for(auto & i : map) {
+                cout << i.first << " " << i.second.first << "\n";
+            }
+            cout << "\n";
+        }
+
+    };
+
 
     void test() {
+        cout << "cache test\n";
+        LRU_cache_t<int, int> cache(3);
+        cache.add(1,1);
+        cache.add(2,2);
+        cache.get(1);
+        cache.add(3,3);
+        cache.add(4,4);
+        cache.get(1);
+        cache.add(5,5);
+        cache.add(6,6);
+        cache.get(1);
+        cache.add(7,7);
+        cache.add(8,8);
+        cache.get(1);
+        cache.add(9,9);
+        cache.print();
+
+        LRU_cache_t<int, string> cache2(3);
+
+        cache2.add(1, "one");
+        cache2.add(2, "two");
+        cache2.add(3, "three");
+        cache2.add(4, "four");
+        cache2.print();
+
+
 //        std::cout << R"(levenshtein_distance("fuck", "duck") = )"  << levenshtein_distance("fuck", "duck") << " expected 1" << std::endl;
         costs_t costs;
         std::cout << R"(damerau_levenshtein_distance("CA", "ABC") = )"  << damerau_levenshtein_distance("CA", "ABC", costs) << " expected 2" << std::endl;
