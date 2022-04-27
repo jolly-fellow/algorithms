@@ -2,7 +2,7 @@
 #include "../algorithms.hpp"
 
 int main() {
-    algorithms::test();
+//    algorithms::test();
 //    algorithms::graph::test();
 //    algorithms::list::test();
     algorithms::sort::test();

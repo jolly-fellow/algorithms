@@ -406,8 +406,8 @@ int DamerauLevenshteinDistance(S: char[1..M], T: char[1..N]; deleteCost, insertC
 
     };
 
-
     void test() {
+
         cout << "cache test\n";
         LRU_cache_t<int, int> cache(3);
         cache.add(1,1);
