@@ -9,6 +9,7 @@
 #include <queue>
 #include <algorithm>
 #include <functional>
+#include <list>
 
 namespace algorithms::graph {
     using namespace std;
@@ -369,6 +370,84 @@ namespace algorithms::graph {
 
         return bridges;
     }
+/*
+
+vector<bool> visited;
+long long vertices=0;
+vector<list<long long> > G;
+
+void DFS(long long u){
+    if(visited[u]) return ;
+    visited[u]=true;
+    vertices++;
+    for(auto i: G[u])
+        if(!visited[i])
+            DFS(i);
+}
+
+int journeyToMoon(int n, vector<vector<int>> v) {
+
+    long long ans=n*(n-1)/2;
+    visited.resize(n,false);
+    G.resize(n);
+
+    for(int i = 0; i < v.size(); ++i){
+        G[v[i][0]].push_front(v[i][1]); G[v[i][1]].push_front(v[i][0]);
+    }
+
+    for(long long i=0;i<n;i++){
+        vertices=0;
+        DFS(i);
+        ans=ans-vertices*(vertices-1)/2;
+    }
+    return ans;
+}
+ * */
+
+
+    int journeyToMoon(int n, vector<vector<int>> v) {
+        vector<bool> visited(n, false);
+        int vertices = 0;
+        // total number of combinations of pairs which is possible to make from the given number of astronauts
+        int result = n * (n - 1) / 2;
+        vector<std::list<int>> graph(n);
+
+        // dfs traversal through the graph
+        std::function<void(int)> dfs = [&dfs, &visited, &graph, &vertices](int current) {
+            if (visited[current]) {
+                return;
+            }
+            visited[current] = true;
+            vertices++;
+            for (auto i: graph[current]) {
+                if (!visited[i]) {
+                    dfs(i);
+                }
+            }
+        };
+
+        // build a graph
+        for (auto & i : v) {
+            graph[i[0]].push_front(i[1]);
+            graph[i[1]].push_front(i[0]);
+        }
+        // traverse through the graph and count vertices.
+        // each time when we return from the dfs we have
+        // counted number of vertices in the traversed subgraph
+        // each subgraph contains astronauts from the same country
+        for (int i = 0; i < n; i++) {
+            vertices = 0;
+            dfs(i);
+            // then subtract from the total number of combinations of pairs a number of the combinations for the
+            // current country.
+            if(vertices > 1) {
+                result -= vertices * (vertices - 1) / 2;
+            }
+        }
+        // as result we have a number of combinations of pairs of the astronauts from different countries.
+        return result;
+    }
+
 
     vector<int> topological_sort(const edge_list_t & edges) {
         // converting to directed graph where edges directed from the left node to the right one.
@@ -399,6 +478,8 @@ namespace algorithms::graph {
         std::reverse(result.begin(), result.end());
         return result;
     }
+    // 704982702
+    // 49994998
 
 
     void print_vector(const vector<int> &v) {
@@ -409,6 +490,13 @@ namespace algorithms::graph {
     }
 
     void test() {
+        vector<vector<int>> v {
+                {1,2},
+                {3,4}
+        };
+
+        cout << "\nastro test " << journeyToMoon(10000, v) << "\n";
+
 
         cout << "\ngraph test" << endl;
         const edge_list_t top_sort_test {{5, 2}, {5, 0}, {4, 0}, {4, 1}, {2, 3}, {3, 1}};

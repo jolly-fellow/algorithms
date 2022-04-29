@@ -8,9 +8,39 @@
 #include <algorithm>
 #include <map>
 #include <utility>
+#include <set>
+#include <queue>
 
 namespace algorithms::sort {
     using namespace std;
+
+    template <typename T>
+    vector<int> merge_sorted_arrays2(const vector<int>::iterator& v1, int v1_size, const vector<int>::iterator& v2, int v2_size) {
+        vector<int> res;
+        res.reserve(v1_size +  v2_size);
+        int i1 = 0;
+        int i2 = 0;
+
+        while(i1 < v1_size && i2 < v2_size)  {
+
+            if(v1[i1] < v2[i2]) {
+                res.push_back(v1[i1++]);
+            }
+            else {
+                res.push_back(v2[i2++]);
+            }
+        }
+
+        while(i1 < v1_size) {
+            res.push_back(v1[i1++]);
+        }
+
+        while(i2 < v2_size) {
+            res.push_back(v2[i2++]);
+        }
+
+        return res;
+    }
 
     template <typename T>
     std::vector<T> merge_sorted_arrays(std::vector<T> v1, std::vector<T> v2) {
@@ -19,23 +49,25 @@ namespace algorithms::sort {
         std::vector<T> res;
         res.reserve(v1_size + v1_size);
 
-        int i = 0, j = 0;
-        while (i < v1_size && j < v2_size) {
-            if (v1[i] < v2[j]) {
-                res.push_back(v1[i++]);
+        int i1 = 0;
+        int i2 = 0;
+        while(i1 < v1_size && i2 < v2_size)  {
+
+            if(v1[i1] < v2[i2]) {
+                res.push_back(v1[i1++]);
             }
             else {
-                res.push_back(v2[j++]);
+                res.push_back(v2[i2++]);
             }
         }
-        // copy remaining elements
-        while (i < v1_size) {
-            res.push_back(v1[i++]);
-        }
-        while (j < v2_size) {
-            res.push_back(v2[j++]);
+
+        while(i1 < v1_size) {
+            res.push_back(v1[i1++]);
         }
 
+        while(i2 < v2_size) {
+            res.push_back(v2[i2++]);
+        }
         return res;
     }
 
@@ -105,7 +137,8 @@ namespace algorithms::sort {
         return inversions;
     }
 
-    void print_vector(const vector<int> &v) {
+    template <typename T>
+    void print_vector(const vector<T> &v) {
         for(auto i: v) {
             cout << i << " ";
         }
@@ -151,6 +184,110 @@ namespace algorithms::sort {
         return result;
     }
 
+    double get_median(vector<int> v) {
+        auto v_size = v.size();
+
+        if(v_size == 0) { return -1; }
+
+        if(v_size%2) {
+            return v[v_size / 2];
+        }
+        else {
+            return static_cast<double>((v[v_size / 2]) + v[v_size / 2 + 1]) / 2;
+        }
+    }
+
+    double get_median_sorted_arrays(vector<int> v1, vector<int> v2) {
+        auto v1_size = v1.size();
+        auto v2_size = v2.size();
+        double res;
+        return res;
+    }
+
+    vector<double> medianSlidingWindow(vector<int>& nums, int k) {
+        multiset<int> window(nums.begin(), nums.begin() + k);
+        auto mid = next(window.begin(), k / 2);
+        vector<double> medians;
+        for (int i=k; ; i++) {
+
+            // Push the current median.
+            medians.push_back((double(*mid) + *prev(mid, 1 - k%2)) / 2);
+
+            // If all done, return.
+            if (i == nums.size())
+                return medians;
+
+            // Insert nums[i].
+            window.insert(nums[i]);
+            if (nums[i] < *mid)
+                mid--;
+
+            // Erase nums[i-k].
+            if (nums[i-k] <= *mid)
+                mid++;
+            window.erase(window.lower_bound(nums[i-k]));
+        }
+    }
+
+    vector<double> medianSlidingWindow2(vector<int>& v, int k) {
+        multiset<int> window(v.begin(), v.begin() + k);
+        auto mid = next(window.begin(), k / 2);
+        vector<double> medians;
+        int v_size = v.size();
+        for (int i=k; ;++i) {
+
+            // Push the current median.
+            // int p = ( k%2 == 0 ) ? *prev(mid) : 0;
+            // medians.push_back( (double(*mid) + p) / 2 );
+            medians.push_back( (double(*mid) + *prev(mid, 1 - k%2)) / 2);
+
+            // If all done, return.
+            if (i == v_size) {
+                return medians;
+            }
+
+            // Insert v[i].
+            window.insert(v[i]);
+            if (v[i] < *mid) {
+                mid--;
+            }
+
+            // Erase v[i-k].
+            if (v[i - k] <= *mid) {
+                mid++;
+            }
+            window.erase(window.lower_bound(v[i - k]));
+        }
+    }
+
+    vector<double> medianSlidingWindow3(vector<int>& nums, int k) {
+        vector<double> medians(nums.size() - k + 1);
+        int j=0;
+        std::multiset<int, std::greater<>> lo;
+        std::multiset<int> hi;
+
+        for (int i = 0; i < nums.size(); i++) {
+            lo.insert(nums[i]);
+            hi.insert(*lo.begin()); lo.erase(lo.begin());
+
+            if (hi.size() > lo.size()) { lo.insert(*hi.begin()); hi.erase(hi.begin()); }
+
+            if (lo.size() + hi.size() == k) {
+                medians[j] = (lo.size()==hi.size()) ? (double)(*lo.begin() + *hi.begin()) / 2 : *lo.begin();
+
+                auto l_found = lo.find(nums[j]);
+                if(l_found != lo.end()) {
+                    lo.erase(l_found);
+                }
+                else {
+                    hi.erase(hi.find(nums[j]));
+                }
+                j++;
+            }
+        }
+        return medians;
+    }
+
     void test() {
 
         std::vector<int> v1 {1,2,3,4,5};
@@ -159,6 +296,22 @@ namespace algorithms::sort {
         std::vector<int> v4 {1, 9, 6, 4, 5}; // 5 inversions
         std::vector<int> v5 {1, 3, 4, 2}; // 2 inversions
         auto t = merge_sorted_arrays(v1, v2);
+
+        cout << "\nMerge sorted arrays: " << endl;
+        print_vector(t);
+        cout << "\n----- " << endl;
+
+        auto medians1 = medianSlidingWindow3(t, 4);
+        auto medians2 = medianSlidingWindow(t, 4);
+        auto medians3 = medianSlidingWindow2(t, 4);
+        cout << "\nfind medians: " << endl;
+        print_vector(medians1);
+        cout << "\n----- " << endl;
+        print_vector(medians2);
+        cout << "\n----- " << endl;
+        print_vector(medians3);
+        cout << "\n----- " << endl;
+
 
         vector<vector<int>> matrix{{1,  -1,  0,  -2,  -3},
 
